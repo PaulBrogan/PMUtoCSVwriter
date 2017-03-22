@@ -1,7 +1,7 @@
 Info, This is treated as a csv when imported by the python program.PMU Port and CSV Directory will default to normal values - keep the directory as forward slash DO NOT used back slash. The PMU Label and CSV Name are optional.  The other data is required.
-PMU IP, 192.168.0.10
+PMU IP, 192.168.0.20
+PMU Number, 123
 PMU Port, 4712
-PMU Number, 10
 CSV Name, PMUtoCSV_configDefault_
 CSV Directory, OutputData/
 Time Significant Figures, 13

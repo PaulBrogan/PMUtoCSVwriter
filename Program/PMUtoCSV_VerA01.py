@@ -12,7 +12,6 @@ import socket, time, datetime, crcmod, struct
 import threading, math, json, sys, os, csv
 
 import logging
-from random import randint
 
 #LOGGING
 #1 debug - detailed
@@ -33,13 +32,13 @@ class OperateOnDictionary(threading.Thread):
         if InvertSymmetricalComponents == True:
             self.SymAng = -self.SymAng
         
-        logging.basicConfig(filename = 'PMU2CSV_logfile.log', level = logging.INFO, filemode='w')
+        logging.basicConfig(filename = 'PMU2CSV_logfile.log', level = logging.INFO, filemode='w', format='%(asctime)s %(message)s')
         logging.critical('-------------------------------------')
         logging.critical('Script started at ' + time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()) + 'GMT')
         
         threading.Thread.__init__(self)
 
-        self.PMUip = "143.117.218.70"
+        self.PMUip = "192.168.0.10"
         self.PMUport = 4712
         self.PMUnumber = 20
         
@@ -74,7 +73,6 @@ class OperateOnDictionary(threading.Thread):
                     logging.info('Changing ' + str(Key) + ' to string ' + str(Variable))
                 
             except:
-                #print('Fail')
                 Variable = Except
                 logging.critical('Failure to load ' + str(Variable) + ' with key ' + str(Key) + ' error ' + str(sys.exc_info()[0:2]) + ' from Dictionary ' + str(Dict.keys()))
 
@@ -159,7 +157,7 @@ class OperateOnDictionary(threading.Thread):
                 else:
                     List.append(StringList)
                 
-        return List
+        return(List)
 
     def Update_LocalDictionary(self, Dictionary, Value, KeyList):
         Value = str(Value)
@@ -220,7 +218,7 @@ class OperateOnDictionary(threading.Thread):
             for n in range(0, len(List)):
                 List[n] = str(List[n].strip())[2:-1]
             logging.debug('to -> ' + str(List))
-            return List
+            return(List)
             
 
         PhasorNameList, AnalogueNameList, DigitalNameList = CleanNamesInList(PhasorNameList), CleanNamesInList(AnalogueNameList), CleanNamesInList(DigitalNameList)
@@ -358,7 +356,7 @@ class OperateOnDictionary(threading.Thread):
             Mag = (X**2 + Y**2)**0.5
             Ang = math.atan2(Y, X)   
             
-            return Mag, Ang
+            return(Mag, Ang)
             
         FRACSEC = str(bin(int(FRACSEC)))[2:].zfill(32)[-32:]
         TimeQuality = FRACSEC[:8]
@@ -541,16 +539,16 @@ class CommandFrames(Connect2PMU):
         CHK = (self.crcFunc(struct.pack("!3H2LH", SYNC, FRAMESIZE, IDCODE, SOC, FRACSEC, CMD)))
         PACKET = struct.pack("!3H2L2H", SYNC, FRAMESIZE, IDCODE, SOC, FRACSEC, CMD, CHK)  
         
-        return PACKET
+        return(PACKET)
         
        
      
     def StopPMUstream(self):
         logging.info('Sending Stop PMU Stream Command Frame') 
-        return self.CommFrame(1)
+        return(self.CommFrame(1))
     def StartPMUstream(self):
         logging.info('Sending Start PMU Stream Command Frame') 
-        return self.CommFrame(2)
+        return(self.CommFrame(2))
     def SendHDR(self):
         logging.info('Request Header Command Frame') 
         self.CommFrame(3)    
@@ -558,7 +556,7 @@ class CommandFrames(Connect2PMU):
         logging.info('Request Config Frame 1 - All possible channels') 
         self.CommFrame(4) 
     def SendCFG2(self):
-        return self.CommFrame(5)
+        return(self.CommFrame(5))
     def SendCFG3(self):
         self.CommFrame(6)
 
@@ -646,8 +644,8 @@ class DecodeC37(CommandFrames):
                 PHNMR, ANNMR, DGNMR = PacketShortInt[20], PacketShortInt[21], PacketShortInt[22]
                 logging.critical('Entering CF2 with ' + str(NUM_PMU) + ' PMUs ' + str(PHNMR) + ' Phasors ' + str(ANNMR) + ' Analogues ' + str(DGNMR) + ' Digitals')
                 self.C37configFrame2Enter(Packet, NUM_PMU, PHNMR, ANNMR, DGNMR)
-                with open('ConfigFrame2.txt', 'w') as outfile:
-                    json.dumps(self.PMUconfig_LocalDictionary, outfile)
+                #with open('ConfigFrame2.txt', 'w') as outfile:
+                 #   json.dumps(self.PMUconfig_LocalDictionary, outfile)
                     
                 
             elif ID == '001':
@@ -749,8 +747,6 @@ class DecodeC37(CommandFrames):
             self.FirstDF = True
             self.C37118_AddToDFdict_Human(SYNC, FRAMESIZE, IDCODEsource, IDCODE, SOC, FRACSEC, CHK, Measurements)
             
-            #self.InfoList.append FRAMESIZE
-            
     def C37configFrame2Enter(self, Packet, NUM_PMU, PHNMR, ANNMR, DGNMR):
        
         Fields8to19 = '16s5H' + '16s' * (PHNMR + ANNMR + 16 * DGNMR)  \
@@ -808,48 +804,26 @@ class Threading_Functions(DecodeC37):
     
     def __init__(self):
         DecodeC37.__init__(self)
-        
-        #self.FunctionCount = 0
-        #self.MaxFunctionCount = 1000
-        #self.ThreadStop = False
         self.TCP_IP_List = []
-        #self.MongoDB_Dict_List = []
-        #self.UploadCount = 0
-        
-        #self.ErrorCount = 0
-        
-        #self.InitialiseDF = True
-        #self.InitialiseCount = 0
-
-        #self.ScrnTdiff, self.LogTdiff = 0, 0
-        #self.ScrnErrorArray, self.LogErrorArray = [], []
-                 
-        #self.BytesDropped = 0
-        #self.ConversionErrors = 0
-        #self.DFsize = 1
         self.TCPIP = b""
-        #self.MaxTime = 0
-        #self.TCPincidentCount = 0
-        #self.PrintTime = False
-        #self.MxTdiff = 0
-        #self.UserInput = None
-        #self.ConsolOP = False
-        
-        #self.Topic1 = ''
         self.Topic2 = []
-        
-        #self.JSONtopicName = False
 
     def TCP_Socket(self):
         
-        TCPIP = self.serversocket.recv(1024)
-        while True:
-            self.TCPIP += TCPIP
-            if len(TCPIP) == 1024:
-                TCPIP = self.serversocket.recv(1024)
-            else:
-                break
-       
+#        TCPIP = self.serversocket.recv(1024)
+#        while True:
+#            self.TCPIP += TCPIP
+#            if len(TCPIP) == 1024:
+#                TCPIP = self.serversocket.recv(1024)
+#            else:
+#                break
+
+        if self.Exit == False:
+            try:
+                TCPIP = self.serversocket.recv(4096)
+                self.TCPIP += TCPIP
+            except:
+                pass       
       
     def TCP_DF_Listener(self):
 
@@ -951,7 +925,7 @@ class Threading_Functions(DecodeC37):
                             TimeList1 = TimeList[:CutIndex]
                             self.ThreadWrite(self.ArrayMe(self.WriteDict, TimeList1, Headers), self.WriteTime)
                             TimeList2 = TimeList[CutIndex:]
-                            self.WriteTime = TimeList2[0]
+                            self.WriteTime = int(TimeList2[0])
                             Array = [['Time UTC'] + HeadersOP] + self.ArrayMe(self.WriteDict, TimeList2, Headers)
                             self.ThreadWrite(Array, self.WriteTime)
                             logging.info('New File ' + str(self.WriteTime) + ' | Headers = ' + str(HeadersOP))  

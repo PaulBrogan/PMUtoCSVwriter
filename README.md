@@ -42,6 +42,7 @@ Usage
 	
 	
 3) The Log Files
+	* Log files are set to overwrite ('w') not to append ('a') this can be changed
 	* The logging level is set to INFO, this does not bloat the log file, only INFO and CRITICAL have been used in the code
 	* To change the level of logging open the script and change "INFO" TO "CRITICAL", not hard to find
 	* The log is the place to check the health of the script. 
